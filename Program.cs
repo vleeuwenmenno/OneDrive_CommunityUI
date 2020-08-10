@@ -59,9 +59,10 @@ namespace OneDrive_CommunityUI
                 
                 string res = unix("zenity", "--forms --title=\"Login to your Microsoft Account\" --text=\"Please login to your Microsoft account to continue.\\nOnce logged in you will be redirected to a blank page, copy the address url and paste it down below.\" --add-entry=\"Authentication URL\"");
                 Console.WriteLine(unix("onedrive", "", false, res.Replace("\n", "")));
+                ComponentsDesktop.Run<Startup>("OneDrive - Community UI", "wwwroot/index.html", new Size(400, 650));
             }
-
-            //ComponentsDesktop.Run<Startup>("OneDrive - Community UI", "wwwroot/index.html", new Size(400, 650));
+            else
+                ComponentsDesktop.Run<Startup>("OneDrive - Community UI", "wwwroot/index.html", new Size(400, 650));
         }
     }
 }
