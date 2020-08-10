@@ -1,0 +1,290 @@
+﻿@page "/"
+<html>
+    <head>
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/all.css">
+        
+        <title>Simple Calc</title> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    </head>
+    <body>
+        <header style="@(!oos ? "display: none;" : "")">
+            <i class="fas fa-sync fa-spin" style="color: white;"></i>&nbsp;OneDrive is updating files ...
+        </header>
+        <div class="subHeader" style="@(!oos ? "display: none;" : "")">
+            <div class="subHeaderContent">
+                Processing @(downloadCountDone+uploadCountDone)/@(downloadCountToDo+uploadCountToDo) changes
+            </div>
+        </div>
+        <header style="@(oos ? "display: none;" : "")">
+            <i class="fas fa-cloud" style="color: white;"></i>&nbsp;OneDrive is up to date
+        </header>
+
+        <main>
+            @for (int i = filesDone.Count; i > 0; i--)
+            {
+                <div class='fileContainer' @onclick="@(new Action(() => OpenFile(filesDone[i-1])))">
+                        <div>
+                            <i class="fas fa-file fa-2x iconDetails"></i>
+                        </div>	
+                    <div style='margin-left:60px;'>
+                    <h4>@Path.GetFileName(filesDone[i-1])</h4>
+                    <div style="font-size:.6em;float:left;">@filesDone[i-1]</div>
+                    <div style="float:right;font-size:.6em"></div>
+                    </div>
+                </div><br />
+            }
+        </main>
+
+        <footer class="footer">
+            <div class="row">
+                <div @onclick="openFolderBtn_Click" class="column">
+                    <i class="fas fa-folder-open fa-2x"></i>
+                    <p>Open folder</p>
+                </div>
+                <div @onclick="viewOnlineBtn_Click" class="column">                    
+                    <i class="fas fa-globe-europe fa-2x"></i>
+                    <p>View online</p>
+                </div>
+                <div @onclick="settingsBtn_Click" class="column">         
+                    <i class="fas fa-cog fa-2x"></i>
+                    <p>Help & Settings</p>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>
+
+@code {
+    void OpenFile(string s)
+    {
+        Process.Start("/bin/bash", "-c \"/usr/bin/xdg-open /home/$USER/OneDrive/" + (s.StartsWith(",/") ? s.Replace("./", ""): s) + "\"");
+    }
+
+    bool oos = false;
+
+    List<String> filesDone = new List<string>();
+
+    int downloadCountToDo = 0;
+    int uploadCountToDo = 0;
+
+    int downloadCountDone = 0;
+    int uploadCountDone = 0;
+
+    double remainingSpace = 0;
+
+    void openFolderBtn_Click()
+    {
+        Process.Start("/bin/bash", "-c \"/usr/bin/xdg-open /home/$USER/OneDrive\"");
+    }
+
+    void viewOnlineBtn_Click()
+    {
+        Process.Start("/usr/bin/xdg-open", "https://onedrive.live.com/");
+    }
+
+    void settingsBtn_Click()
+    {
+        
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        WebWindows.Blazor.ComponentsDesktop.WebWindow.Topmost = true;
+        WebWindows.Blazor.ComponentsDesktop.WebWindow.SetIconFile("wwwroot/img/onedrive.ico");
+        statusMonitor(30000);
+
+        new Thread(() => {
+            Thread.Sleep(1000);
+            int nProcessID = Process.GetCurrentProcess().Id;
+
+            Console.WriteLine($"Moving to tray... (PID: {nProcessID})");
+            unix("notify-send", "\"OneDrive is hidden to tray\" \"It will continue to sync in the background.\" --icon=/opt/onedrive-community-ui/wwwroot/img/onedrive.png");
+            unix("kdocker", $"-x {nProcessID} -l -o");
+        }).Start();
+    }
+
+    void statusMonitor(int interval)
+    {
+        Thread monitor = new Thread(() => 
+        {
+            while (true)
+            {
+                oos = isOutOfSync();
+                Console.WriteLine($"Out of sync: {oos}");
+                    
+                InvokeAsync(() =>
+                {
+                    StateHasChanged();
+                });
+
+                if (oos)
+                {
+                    /// Get space left on OneDrive
+                    foreach (string line in unix("onedrive", "--verbose --display-sync-status").Split("\n"))
+                    {
+                        if (line.StartsWith("Remaining Free Space: "))
+                        {
+                            remainingSpace = double.Parse(line.Replace("Remaining Free Space: ", "")) / 1024; 
+                            break;
+                        }
+                    }
+                    
+                    InvokeAsync(() =>
+                    {
+                        StateHasChanged();
+                    });
+
+                    // Dry-run sync to count files
+                    #region Dry-run to count files
+                    new Thread(() =>
+                    {
+                        Process proc = new Process {
+                            StartInfo = new ProcessStartInfo {
+                                FileName = "onedrive",
+                                Arguments = $"--synchronize --dry-run",
+                                UseShellExecute = false,
+                                RedirectStandardOutput = true,
+                                CreateNoWindow = true
+                            }
+                        };
+
+                        proc.Start();
+                        while (!proc.StandardOutput.EndOfStream) 
+                        {
+                            string line = proc.StandardOutput.ReadLine();
+                            if (line.StartsWith("Downloading file "))
+                                downloadCountToDo++;
+
+                            if (line.StartsWith("Uploading modified file "))
+                                uploadCountToDo++;
+
+                            if (line.StartsWith("Uploading new file "))
+                                uploadCountToDo++;
+
+
+                            InvokeAsync(() =>
+                            {
+                                StateHasChanged();
+                            });
+                        }
+                    }).Start();
+                    #endregion
+
+                    Thread.Sleep(2000);
+                    filesDone = new List<string>();
+                    // Run sync to sync
+                    #region Sync
+                    Process procReal = new Process {
+                        StartInfo = new ProcessStartInfo {
+                            FileName = "onedrive",
+                            Arguments = $"--synchronize",
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = true
+                        }
+                    };
+
+                    procReal.Start();
+                    while (!procReal.StandardOutput.EndOfStream) 
+                    {
+                        string line = procReal.StandardOutput.ReadLine();
+                        if (line.StartsWith("Downloading file "))
+                        {
+                            downloadCountDone++;
+                            line = line.Replace("Downloading file ", "").Replace("Uploading modified file ", "").Replace("Uploading new file ", "").Replace(" ... done.", "");
+                            filesDone.Add(line);
+                        }
+
+                        if (line.StartsWith("Uploading modified file "))
+                        {
+                            uploadCountDone++;
+                            line = line.Replace("Downloading file ", "").Replace("Uploading modified file ", "").Replace("Uploading new file ", "").Replace(" ... done.", "");
+                            filesDone.Add(line);
+                        }
+
+                        if (line.StartsWith("Uploading new file "))
+                        {
+                            uploadCountDone++;
+                            line = line.Replace("Downloading file ", "").Replace("Uploading modified file ", "").Replace("Uploading new file ", "").Replace(" ... done.", "");
+                            filesDone.Add(line);
+                        }
+
+                        
+
+                        InvokeAsync(() =>
+                        {
+                            StateHasChanged();
+                        });
+                    }
+                    #endregion     
+   
+                    Thread.Sleep(1000);
+                    oos = false; 
+                    InvokeAsync(() =>
+                    {
+                        StateHasChanged();
+                    });        
+                }
+
+                Thread.Sleep(interval);
+            }
+        });
+        monitor.Start();
+    }
+
+    bool isOutOfSync()
+    {
+        Process proc = new Process {
+            StartInfo = new ProcessStartInfo {
+                FileName = "onedrive",
+                Arguments = $"--synchronize --dry-run",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            }
+        };
+
+        proc.Start();
+        bool oos = false;
+        while (!proc.StandardOutput.EndOfStream) 
+        {
+            string line = proc.StandardOutput.ReadLine();
+
+            if (line.StartsWith("Downloading file "))
+                oos = true;
+
+            if (line.StartsWith("Uploading modified file "))
+                oos = true;
+
+            if (line.StartsWith("Uploading new file "))
+                oos = true;            
+
+            if (oos)
+                proc.Kill();
+        }
+        return oos;
+    }
+        
+    static string unix(string exec, string parameter)
+    {
+        Process proc = new Process {
+            StartInfo = new ProcessStartInfo {
+                FileName = exec,
+                Arguments = $"{parameter}",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            }
+        };
+
+        proc.Start();
+        string output = "";
+        while (!proc.StandardOutput.EndOfStream) 
+        {
+            string line = proc.StandardOutput.ReadLine();
+            output += line+Environment.NewLine;
+        }
+        return output;
+    }
+}

@@ -1,0 +1,117 @@
+h1 { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5667px; }
+
+
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+  
+  
+header {
+    background-color: rgb(0, 119, 211);
+    margin: 0px;
+    color: rgb(243, 242, 241);
+    padding: 28px 0px 28px 0px;
+    text-align: center;
+    font-weight: 500;
+	font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif; 
+}
+
+.headerPaused {
+    background-color: rgb(53, 52, 51);
+}
+
+.subHeaderContent {
+    height: 32px;
+    width: 100%;
+    background-color: rgb(243, 242, 241);
+    margin: 0px;
+    color: rgb(56, 57, 61);
+    display: table-cell;
+    vertical-align: middle;
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 400;
+    font-size: 9pt;
+    opacity: 0.7;
+}
+.subHeader {
+    height: 32px;
+    width: 100%;
+    background-color: rgb(243, 242, 241);
+    margin: 0px;
+    color: rgb(56, 57, 61);
+    vertical-align: middle;
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 400;
+    font-size: 9pt;
+    opacity: 0.7;
+}
+
+footer {
+    position:fixed;
+    left:0px;
+    bottom:0px;
+    width:100%;
+    background-color: rgb(243, 242, 241);
+    margin: 0px;
+    color: lightgray;
+    padding: 32px 0px 32px 0px;
+    text-align: center;    
+    display: table-cell;
+    vertical-align: middle;
+    border-color: rgb(223, 223, 223);
+    border-top: 1px solid;
+}
+
+body {
+    padding: 0px;
+    height: 100%;
+    margin: 0;
+}
+
+.wrapper {
+    min-height: 100%;
+
+    /* Equal to height of footer */
+    /* But also accounting for potential margin-bottom of last child */
+    margin-bottom: -50px;
+}
+
+* {
+    box-sizing: border-box;
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+.column {
+    float: left;
+    width: 33.33%;
+    color: rgb(56, 57, 61) !important;
+    font-size: 9pt !important;
+    cursor: pointer;
+}
+
+.iconDetails {
+    margin-left:2%;
+    float:left; 
+    height:40px;
+    width:40px;	
+} 
+
+.fileContainer {
+    width:100%;
+    height:auto;
+    padding:1%;
+    cursor: pointer;
+}
+
+h4 {
+    margin:0px;
+}
