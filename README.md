@@ -20,7 +20,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/vleeuwenmenno/OneDrive_Community_UI">
+  <a href="https://github.com/vleeuwenmenno/OneDrive_CommunityUI">
     <img src="wwwroot/img/onedrive.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -30,11 +30,11 @@
     A UI for OneDrive for the people using Ubuntu/Debian
     <br />
     <br />
-    <a href="https://github.com/vleeuwenmenno/OneDrive_Community_UI/releases">Download</a>
+    <a href="https://github.com/vleeuwenmenno/OneDrive_CommunityUI/releases">Download</a>
     ·
-    <a href="https://github.com/vleeuwenmenno/OneDrive_Community_UI/issues">Report Bug</a>
+    <a href="https://github.com/vleeuwenmenno/OneDrive_CommunityUI/issues">Report Bug</a>
     ·
-    <a href="https://github.com/vleeuwenmenno/OneDrive_Community_UI/issues">Request Feature</a>
+    <a href="https://github.com/vleeuwenmenno/OneDrive_CommunityUI/issues">Request Feature</a>
   </p>
 </p>
 
@@ -50,7 +50,7 @@ It uses the linux `onedrive` command line interface and `kdocker` to make this h
 
 ### Built With
 This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-* [WebWindow](https://github.com/SteveSandersonMS/WebWindow)
+* [Electron.NET](https://github.com/ElectronNET/Electron.NET)
 * [FontAwesome](https://fontawesome.com/)
 * [onedrive](https://github.com/skilion/onedrive)
 
@@ -78,4 +78,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Contact
 
 Menno van Leeuwen - menno@vleeuwen.me - [menno.vleeuwen.me](https://menno.vleeuwen.me)
-Project Link: [https://github.com/vleeuwenmenno/OneDrive_Community_UI](https://github.com/vleeuwenmenno/OneDrive_Community_UI)
+Project Link: [https://github.com/vleeuwenmenno/OneDrive_CommunityUI](https://github.com/vleeuwenmenno/OneDrive_CommunityUI)

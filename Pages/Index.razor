@@ -1,290 +1,86 @@
 ﻿@page "/"
-<html>
-    <head>
-        <link rel="stylesheet" href="css/main.css">
-        <link rel="stylesheet" href="css/all.css">
-        
-        <title>Simple Calc</title> 
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    </head>
-    <body>
-        <header style="@(!oos ? "display: none;" : "")">
-            <i class="fas fa-sync fa-spin" style="color: white;"></i>&nbsp;OneDrive is updating files ...
-        </header>
-        <div class="subHeader" style="@(!oos ? "display: none;" : "")">
-            <div class="subHeaderContent">
-                Processing @(downloadCountDone+uploadCountDone)/@(downloadCountToDo+uploadCountToDo) changes
+
+<header style="@(!Startup.oneDrive.isActivelySyncing ? "display: none;" : "")">
+    <i class="fas fa-sync fa-spin" style="color: white;"></i>&nbsp;OneDrive is updating files ...
+</header>
+<div class="subHeader" style="@(!Startup.oneDrive.isActivelySyncing ? "display: none;" : "")">
+    <div class="subHeaderContent">
+        @if (files != null && files.Count > 0) {
+            @(files.First().Value.job)@(" ")<span class="subHeaderFilePath">@(Path.GetFileName(files.First().Value.path))</span>@(" ")@(files.First().Value.progress)@("% ... ")
+        }
+    </div>
+</div>
+<header style="@(Startup.oneDrive.isActivelySyncing ? "display: none;" : "")">
+    <i class="fas fa-cloud" style="color: white;"></i>&nbsp;OneDrive is up to date
+</header>
+
+<div class="fileList" style="@(Startup.oneDrive.isActivelySyncing ? "top: 120px !important;" : "")">
+    @foreach (KeyValuePair<string, OneDrive_CSharp.File> file in files) {
+        <div class="fileEntry">
+            <div class="fileIcon clickable" @onclick="@(e => OpenFile(file.Value.path))"><i class="fas fa-@(ExtensionToFontAwesome(file.Value.path)) fa-3x" style="color: @(ExtensionToFontAwesome(file.Value.path, true));"></i></div>
+            <div class="contents">
+                <span class="header clickable ellipsize-right" @onclick="@(e => OpenFile(file.Value.path))">@(Path.GetFileName(file.Value.path))</span>
+                <span class="subText ">@(file.Value.done ? (file.Value.job == JobType.Deleting ? "Deleted " : file.Value.job == JobType.Downloading ? "Downloaded " : file.Value.job == JobType.Uploading ? "Uploaded " : " ") : file.Value.job.ToString() + " ") <a href="#" class="ellipsize-left" @onclick="@(e => OpenFile(Path.GetDirectoryName(file.Value.path)))">@(Path.GetDirectoryName(file.Value.path))</a></span>
+                <span class="time">@(file.Value.timeAgo)</span>
             </div>
         </div>
-        <header style="@(oos ? "display: none;" : "")">
-            <i class="fas fa-cloud" style="color: white;"></i>&nbsp;OneDrive is up to date
-        </header>
-
-        <main>
-            @for (int i = filesDone.Count; i > 0; i--)
-            {
-                <div class='fileContainer' @onclick="@(new Action(() => OpenFile(filesDone[i-1])))">
-                        <div>
-                            <i class="fas fa-file fa-2x iconDetails"></i>
-                        </div>	
-                    <div style='margin-left:60px;'>
-                    <h4>@Path.GetFileName(filesDone[i-1])</h4>
-                    <div style="font-size:.6em;float:left;">@filesDone[i-1]</div>
-                    <div style="float:right;font-size:.6em"></div>
-                    </div>
-                </div><br />
-            }
-        </main>
-
-        <footer class="footer">
-            <div class="row">
-                <div @onclick="openFolderBtn_Click" class="column">
-                    <i class="fas fa-folder-open fa-2x"></i>
-                    <p>Open folder</p>
-                </div>
-                <div @onclick="viewOnlineBtn_Click" class="column">                    
-                    <i class="fas fa-globe-europe fa-2x"></i>
-                    <p>View online</p>
-                </div>
-                <div @onclick="settingsBtn_Click" class="column">         
-                    <i class="fas fa-cog fa-2x"></i>
-                    <p>Help & Settings</p>
-                </div>
-            </div>
-        </footer>
-    </body>
-</html>
+    }
+</div>
 
 @code {
-    void OpenFile(string s)
-    {
-        Process.Start("/bin/bash", "-c \"/usr/bin/xdg-open /home/$USER/OneDrive/" + (s.StartsWith(",/") ? s.Replace("./", ""): s) + "\"");
-    }
-
-    bool oos = false;
-
-    List<String> filesDone = new List<string>();
-
-    int downloadCountToDo = 0;
-    int uploadCountToDo = 0;
-
-    int downloadCountDone = 0;
-    int uploadCountDone = 0;
-
-    double remainingSpace = 0;
-
-    void openFolderBtn_Click()
-    {
-        Process.Start("/bin/bash", "-c \"/usr/bin/xdg-open /home/$USER/OneDrive\"");
-    }
-
-    void viewOnlineBtn_Click()
-    {
-        Process.Start("/usr/bin/xdg-open", "https://onedrive.live.com/");
-    }
-
-    void settingsBtn_Click()
-    {
-        
-    }
+    Dictionary<string, OneDrive_CSharp.File> files;
 
     protected override async Task OnInitializedAsync()
     {
-        WebWindows.Blazor.ComponentsDesktop.WebWindow.Topmost = true;
-        WebWindows.Blazor.ComponentsDesktop.WebWindow.SetIconFile("wwwroot/img/onedrive.ico");
-        statusMonitor(30000);
-
-        new Thread(() => {
-            Thread.Sleep(1000);
-            int nProcessID = Process.GetCurrentProcess().Id;
-
-            Console.WriteLine($"Moving to tray... (PID: {nProcessID})");
-            unix("notify-send", "\"OneDrive is hidden to tray\" \"It will continue to sync in the background.\" --icon=/opt/onedrive-community-ui/wwwroot/img/onedrive.png");
-            unix("kdocker", $"-x {nProcessID} -l -o");
-        }).Start();
+        files = new Dictionary<string, OneDrive_CSharp.File>();
+        Startup.oneDrive.OnTransfer += onedrive_onTransfer;
+        Startup.oneDrive.OnSyncStatusChanged += onedrive_OnSyncStatusChanged;
+    }
+    async void onedrive_OnSyncStatusChanged(object source, OneDriveEventArgs e)
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
-    void statusMonitor(int interval)
+    async void onedrive_onTransfer(object source, OneDriveEventArgs e)
     {
-        Thread monitor = new Thread(() => 
-        {
-            while (true)
-            {
-                oos = isOutOfSync();
-                Console.WriteLine($"Out of sync: {oos}");
-                    
-                InvokeAsync(() =>
-                {
-                    StateHasChanged();
-                });
+        OneDrive_CSharp.File val = e.GetFileInfo();
+        Console.WriteLine($"{val.job} {val.path} {val.progress}% ({Misc.BytesToString(val.size)}" + (val.progress < 100 ? $" ETA {val.eta.TotalSeconds}s" : "") + ")");
 
-                if (oos)
-                {
-                    /// Get space left on OneDrive
-                    foreach (string line in unix("onedrive", "--verbose --display-sync-status").Split("\n"))
-                    {
-                        if (line.StartsWith("Remaining Free Space: "))
-                        {
-                            remainingSpace = double.Parse(line.Replace("Remaining Free Space: ", "")) / 1024; 
-                            break;
-                        }
-                    }
-                    
-                    InvokeAsync(() =>
-                    {
-                        StateHasChanged();
-                    });
-
-                    // Dry-run sync to count files
-                    #region Dry-run to count files
-                    new Thread(() =>
-                    {
-                        Process proc = new Process {
-                            StartInfo = new ProcessStartInfo {
-                                FileName = "onedrive",
-                                Arguments = $"--synchronize --dry-run",
-                                UseShellExecute = false,
-                                RedirectStandardOutput = true,
-                                CreateNoWindow = true
-                            }
-                        };
-
-                        proc.Start();
-                        while (!proc.StandardOutput.EndOfStream) 
-                        {
-                            string line = proc.StandardOutput.ReadLine();
-                            if (line.StartsWith("Downloading file "))
-                                downloadCountToDo++;
-
-                            if (line.StartsWith("Uploading modified file "))
-                                uploadCountToDo++;
-
-                            if (line.StartsWith("Uploading new file "))
-                                uploadCountToDo++;
-
-
-                            InvokeAsync(() =>
-                            {
-                                StateHasChanged();
-                            });
-                        }
-                    }).Start();
-                    #endregion
-
-                    Thread.Sleep(2000);
-                    filesDone = new List<string>();
-                    // Run sync to sync
-                    #region Sync
-                    Process procReal = new Process {
-                        StartInfo = new ProcessStartInfo {
-                            FileName = "onedrive",
-                            Arguments = $"--synchronize",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            CreateNoWindow = true
-                        }
-                    };
-
-                    procReal.Start();
-                    while (!procReal.StandardOutput.EndOfStream) 
-                    {
-                        string line = procReal.StandardOutput.ReadLine();
-                        if (line.StartsWith("Downloading file "))
-                        {
-                            downloadCountDone++;
-                            line = line.Replace("Downloading file ", "").Replace("Uploading modified file ", "").Replace("Uploading new file ", "").Replace(" ... done.", "");
-                            filesDone.Add(line);
-                        }
-
-                        if (line.StartsWith("Uploading modified file "))
-                        {
-                            uploadCountDone++;
-                            line = line.Replace("Downloading file ", "").Replace("Uploading modified file ", "").Replace("Uploading new file ", "").Replace(" ... done.", "");
-                            filesDone.Add(line);
-                        }
-
-                        if (line.StartsWith("Uploading new file "))
-                        {
-                            uploadCountDone++;
-                            line = line.Replace("Downloading file ", "").Replace("Uploading modified file ", "").Replace("Uploading new file ", "").Replace(" ... done.", "");
-                            filesDone.Add(line);
-                        }
-
-                        
-
-                        InvokeAsync(() =>
-                        {
-                            StateHasChanged();
-                        });
-                    }
-                    #endregion     
-   
-                    Thread.Sleep(1000);
-                    oos = false; 
-                    InvokeAsync(() =>
-                    {
-                        StateHasChanged();
-                    });        
-                }
-
-                Thread.Sleep(interval);
-            }
-        });
-        monitor.Start();
+        files = new Dictionary<string, OneDrive_CSharp.File>(Startup.oneDrive.files.Reverse());
+        await InvokeAsync(StateHasChanged);
     }
 
-    bool isOutOfSync()
+    void OpenFile(string s)
     {
-        Process proc = new Process {
-            StartInfo = new ProcessStartInfo {
-                FileName = "onedrive",
-                Arguments = $"--synchronize --dry-run",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            }
-        };
+        Process.Start("/bin/bash", "-c \"/usr/bin/xdg-open \\\"/home/$USER/OneDrive/" + (s.StartsWith(",/") ? s.Replace("./", ""): s) + "\\\"\"");
+    }
 
-        proc.Start();
-        bool oos = false;
-        while (!proc.StandardOutput.EndOfStream) 
-        {
-            string line = proc.StandardOutput.ReadLine();
+    string ExtensionToFontAwesome (string filePath, bool getColor = false) {
+        string ext = Path.GetExtension (filePath).Replace (".", "");
 
-            if (line.StartsWith("Downloading file "))
-                oos = true;
-
-            if (line.StartsWith("Uploading modified file "))
-                oos = true;
-
-            if (line.StartsWith("Uploading new file "))
-                oos = true;            
-
-            if (oos)
-                proc.Kill();
+            if (ext == "pdf")
+                return getColor ? "rgb(231, 78, 63)" : "file-pdf";
+            else if (ext == "docx" || ext == "dotx" || ext == "dotm" || ext == "docb")
+                return getColor ? "rgb(42, 86, 150)" : "file-word";
+            else if (ext == "xlsx" || ext == "xlsm" || ext == "xltx" || ext == "xltm")
+                return getColor ? "rgb(2, 110, 57)" : "file-excel";
+            else if (ext == "pptx" || ext == "ppt" || ext == "pps" || ext == "pptm" || ext == "pot")
+                return getColor ? "rgb(207, 72, 40)" : "file-powerpoint";
+            else if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" || ext == "webp" || ext == "tiff" || ext == "fit" || ext == "fits" || ext == "psd" || ext == "raw" || ext == "cr2" || ext == "heif" || ext == "svg" || ext == "bmp")
+                return getColor ? "rgb(84, 80, 79)" : "file-image";
+            else if (ext == "zip" || ext == "rar" || ext == "7z" || ext == "tar" || ext == "bz2" || ext == "gz" || ext == "cab")
+                return getColor ? "rgb(254, 228, 143)" : "file-archive";
+            else if (ext == "mp3" || ext == "wav" || ext == "flac" || ext == "ogg" || ext == "3gp" || ext == "alac" || ext == "aiff" || ext == "m4a" || ext == "opus" || ext == "wma" || ext == "webm")
+                return getColor ? "rgb(0, 116, 205)" : "file-audio";
+            else if (ext == "cs" || ext == "d" || ext == "cpp" || ext == "h" || ext == "py" || ext == "bash" || ext == "sh" || ext == "sln" || ext == "csproj" || ext == "js" || ext == "java" || ext == "fs" || ext == "php" || ext == "css" || ext == "razor" || ext == "html" || ext == "scss" || ext == "sass" || ext == "asp" || ext == "swf" || ext == "xhtml" || ext == "jsp" || ext == "rb" || ext == "xml" || ext == "asx")
+                return getColor ? "rgb(100, 32, 117)" : "file-code";
+            else if (ext == "csv")
+                return getColor ? "rgb(2, 110, 57)" : "file-csv";
+            else if (ext == "gpg" || ext == "pub")
+                return getColor ? "gold" : "key";
+            else if (ext == "mp4" || ext == "mkv" || ext == "avi" || ext == "vob" || ext == "wmv" || ext == "flv" || ext == "m4v" || ext == "mpg" || ext == "m4p" || ext == "mov")
+                return getColor ? "rgb(247, 147, 0)" : "file-video";
+            else
+                return getColor ? "rgb(0, 116, 208)" : "file";
         }
-        return oos;
-    }
-        
-    static string unix(string exec, string parameter)
-    {
-        Process proc = new Process {
-            StartInfo = new ProcessStartInfo {
-                FileName = exec,
-                Arguments = $"{parameter}",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            }
-        };
-
-        proc.Start();
-        string output = "";
-        while (!proc.StandardOutput.EndOfStream) 
-        {
-            string line = proc.StandardOutput.ReadLine();
-            output += line+Environment.NewLine;
-        }
-        return output;
-    }
 }

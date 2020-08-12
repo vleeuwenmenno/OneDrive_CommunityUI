@@ -1,117 +1,264 @@
-h1 { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5667px; }
+h1 {
+  font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
+  font-size: 24px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 700;
+  line-height: 26.4px;
+}
 
+h3 {
+  font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 700;
+  line-height: 15.4px;
+}
+
+p {
+  font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+blockquote {
+  font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
+  font-size: 21px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: 30px;
+}
+
+pre {
+  font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
+  font-size: 13px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: 18.5667px;
+}
 
 * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
-  
-  
+
+-webkit-scrollbar {
+  display: none;
+}
+
 header {
-    background-color: rgb(0, 119, 211);
-    margin: 0px;
-    color: rgb(243, 242, 241);
-    padding: 28px 0px 28px 0px;
-    text-align: center;
-    font-weight: 500;
-	font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif; 
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  background-color: #0077d3;
+  margin: 0px;
+  width: 100%;
+  padding-top: 32px;
+  padding-bottom: 32px;
+  color: #f3f2f1;
+  text-align: center;
+  font-weight: 500;
+  font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
 }
 
 .headerPaused {
-    background-color: rgb(53, 52, 51);
+  background-color: #353433;
+}
+
+.subHeaderFilePath {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
 }
 
 .subHeaderContent {
-    height: 32px;
-    width: 100%;
-    background-color: rgb(243, 242, 241);
-    margin: 0px;
-    color: rgb(56, 57, 61);
-    display: table-cell;
-    vertical-align: middle;
-    text-align: left;
-    padding-left: 16px;
-    font-weight: 400;
-    font-size: 9pt;
-    opacity: 0.7;
+  height: 32px;
+  background-color: #f3f2f1;
+  margin: 0px;
+  color: #38393d;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: left;
+  padding-left: 16px;
+  font-weight: 400;
+  font-size: 9pt;
+  opacity: 0.7;
 }
+
 .subHeader {
-    height: 32px;
-    width: 100%;
-    background-color: rgb(243, 242, 241);
-    margin: 0px;
-    color: rgb(56, 57, 61);
-    vertical-align: middle;
-    text-align: left;
-    padding-left: 16px;
-    font-weight: 400;
-    font-size: 9pt;
-    opacity: 0.7;
+  position: fixed;
+  z-index: 1000;
+  top: 88px;
+  left: 0;
+  height: 32px;
+  width: 100%;
+  background-color: #f3f2f1;
+  margin: 0px;
+  color: #38393d;
+  vertical-align: middle;
+  text-align: left;
+  padding-left: 16px;
+  font-weight: 400;
+  font-size: 9pt;
 }
 
 footer {
-    position:fixed;
-    left:0px;
-    bottom:0px;
-    width:100%;
-    background-color: rgb(243, 242, 241);
-    margin: 0px;
-    color: lightgray;
-    padding: 32px 0px 32px 0px;
-    text-align: center;    
-    display: table-cell;
-    vertical-align: middle;
-    border-color: rgb(223, 223, 223);
-    border-top: 1px solid;
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  background-color: #f3f2f1;
+  margin: 0px;
+  color: lightgray;
+  padding: 32px 0px 32px 0px;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+  border-color: #dfdfdf;
+  border-top: 1px solid;
+}
+
+.footerContent {
+  margin-left: 12px;
+  margin-right: 12px;
 }
 
 body {
-    padding: 0px;
-    height: 100%;
-    margin: 0;
+  padding: 0px;
+  height: 100%;
+  margin: 0;
 }
 
 .wrapper {
-    min-height: 100%;
-
-    /* Equal to height of footer */
-    /* But also accounting for potential margin-bottom of last child */
-    margin-bottom: -50px;
+  min-height: 100%;
+  /* Equal to height of footer */
+  /* But also accounting for potential margin-bottom of last child */
+  margin-bottom: -50px;
 }
 
 * {
-    box-sizing: border-box;
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
 .column {
-    float: left;
-    width: 33.33%;
-    color: rgb(56, 57, 61) !important;
-    font-size: 9pt !important;
-    cursor: pointer;
+  float: left;
+  width: 33.33%;
+  color: #38393d !important;
+  font-size: 9pt !important;
+  cursor: pointer;
 }
 
 .iconDetails {
-    margin-left:2%;
-    float:left; 
-    height:40px;
-    width:40px;	
-} 
-
-.fileContainer {
-    width:100%;
-    height:auto;
-    padding:1%;
-    cursor: pointer;
+  margin-left: 2%;
+  float: left;
+  height: 40px;
+  width: 40px;
 }
 
 h4 {
-    margin:0px;
+  margin: 0px;
 }
+
+.fileEntry {
+  border: 0pt solid;
+  width: 100%;
+  height: 64px;
+  font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+  padding: 16px;
+}
+
+.fileEntry .clickable {
+  cursor: pointer;
+}
+
+.fileEntry .fileIcon {
+  float: left;
+  padding-right: 8px;
+}
+
+.fileEntry .contents {
+  float: left;
+}
+
+.fileEntry .contents .header {
+  font-weight: 600;
+  font-size: 11pt;
+  display: block;
+}
+
+.fileEntry .contents .subText {
+  font-weight: 400;
+  font-size: 10pt;
+  display: block;
+  opacity: 0.75;
+  position: relative;
+  top: -2px;
+}
+
+.fileEntry .contents .time {
+  font-weight: 300;
+  font-size: 8pt;
+  display: block;
+  opacity: 0.6;
+  position: relative;
+  top: -7px;
+}
+
+.fileList {
+  position: relative;
+  top: 90px;
+  width: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align: justify;
+}
+
+.ellipsize-left {
+  /* Standard CSS ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 280px;
+  /* Beginning of string */
+  direction: rtl;
+  text-align: left;
+  float: right;
+}
+
+.ellipsize-right {
+  /* Standard CSS ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 230px;
+}
+/*# sourceMappingURL=main.css.map */
