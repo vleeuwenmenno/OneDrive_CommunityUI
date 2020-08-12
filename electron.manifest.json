@@ -9,9 +9,9 @@
   "environment": "Production",
   "build": {
     "appId": "com.OneDrive_CommunityUI.app",
-    "productName": "OneDrive_CommunityUI",
+    "productName": "OneDrive - Community UI",
     "copyright": "Copyright © 2020",
-    "buildVersion": "0.0.1",
+    "buildVersion": "0.2",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"
