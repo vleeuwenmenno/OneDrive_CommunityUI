@@ -92,6 +92,7 @@ namespace OneDrive_CommunityUI
             oneDrive.authenticate ();
             oneDrive.startMonitorThread ();
             Console.WriteLine($"Started monitoring thread. [Authenticated: {oneDrive.hasAuthenticated}]");
+            OneDrive_CSharp.Misc.unix_simple("notify-send", "\"OneDrive is hidden to tray\" \"It will continue to sync in the background.\" --icon=\""+Environment.CurrentDirectory + "/wwwroot/img/onedrive.png\"");
         }
 
         private async void toggleWindow()

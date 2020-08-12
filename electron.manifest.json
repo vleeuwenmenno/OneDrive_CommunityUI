@@ -3,15 +3,15 @@
   "splashscreen": {
     "imageFile": ""
   },
-  "name": "OneDrive_CommunityUI",
+  "name": "onedriveclui",
   "author": "Menno van Leeuwen",
   "singleInstance": false,
   "environment": "Production",
   "build": {
-    "appId": "com.OneDrive_CommunityUI.app",
-    "productName": "OneDrive - Community UI",
+    "appId": "com.github.vleeuwenmenno.onedriveclui.app",
+    "productName": "OneDrive (Community Linux UI)",
     "copyright": "Copyright © 2020",
-    "buildVersion": "0.2.2",
+    "buildVersion": "0.2.3",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"
