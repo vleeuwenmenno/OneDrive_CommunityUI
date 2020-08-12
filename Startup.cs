@@ -81,10 +81,7 @@ namespace OneDrive_CommunityUI
                     Click = () => toggleWindow()
                 }
             };
-
-            Electron.Tray.OnClick += OnTray_Click;
-            Electron.Tray.OnRightClick += OnTray_Click;
-
+            
             Electron.Tray.Show("/opt/onedrive-community-ui/wwwroot/img/onedrive.png", items);
             Electron.Tray.SetToolTip("OneDrive Community UI");
 
@@ -92,11 +89,7 @@ namespace OneDrive_CommunityUI
 
             oneDrive.authenticate ();
             oneDrive.startMonitorThread ();
-        }
-        
-        private void OnTray_Click(TrayClickEventArgs arg1, ElectronNET.API.Entities.Rectangle arg2)
-        {
-            toggleWindow();
+            Console.WriteLine($"Started monitoring thread. [Authenticated: {oneDrive.hasAuthenticated}]");
         }
 
         private async void toggleWindow()

@@ -20,7 +20,7 @@
             <div class="fileIcon clickable" @onclick="@(e => OpenFile(file.Value.path))"><i class="fas fa-@(ExtensionToFontAwesome(file.Value.path)) fa-3x" style="color: @(ExtensionToFontAwesome(file.Value.path, true));"></i></div>
             <div class="contents">
                 <span class="header clickable ellipsize-right" @onclick="@(e => OpenFile(file.Value.path))">@(Path.GetFileName(file.Value.path))</span>
-                <span class="subText ">@(file.Value.done ? (file.Value.job == JobType.Deleting ? "Deleted " : file.Value.job == JobType.Downloading ? "Downloaded " : file.Value.job == JobType.Uploading ? "Uploaded " : " ") : file.Value.job.ToString() + " ") <a href="#" class="ellipsize-left" @onclick="@(e => OpenFile(Path.GetDirectoryName(file.Value.path)))">@(Path.GetDirectoryName(file.Value.path))</a></span>
+                <span class="subText ">@(jobDone(file.Value))<a href="#" class="ellipsize-left" @onclick="@(e => OpenFile(Path.GetDirectoryName(file.Value.path)))">@(Path.GetDirectoryName(file.Value.path))</a></span>
                 <span class="time">@(file.Value.timeAgo)</span>
             </div>
         </div>
@@ -30,15 +30,42 @@
 @code {
     Dictionary<string, OneDrive_CSharp.File> files;
 
+    string jobDone(OneDrive_CSharp.File file)
+    {
+        if (file.done)
+        {
+            if (file.job == JobType.Deleting)
+                return "Deleted ";
+            else if (file.job == JobType.Downloading)
+                return "Downloaded ";
+            else
+                return "Uploaded ";
+        }
+        else
+            return file.job.ToString();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         files = new Dictionary<string, OneDrive_CSharp.File>();
+
         Startup.oneDrive.OnTransfer += onedrive_onTransfer;
         Startup.oneDrive.OnSyncStatusChanged += onedrive_OnSyncStatusChanged;
+        Startup.oneDrive.OnHeartBeat += onedrive_OnHeartBeat;
     }
+
+    async void onedrive_OnHeartBeat(object source, OneDriveEventArgs e)
+    {
+        // Only update state if the UI is visible
+        if (Electron.WindowManager.BrowserWindows.Count > 0 && await Electron.WindowManager.BrowserWindows.First().IsVisibleAsync())
+            await InvokeAsync(StateHasChanged);
+    }
+
     async void onedrive_OnSyncStatusChanged(object source, OneDriveEventArgs e)
     {
-        await InvokeAsync(StateHasChanged);
+        // Only update state if the UI is visible
+        if (Electron.WindowManager.BrowserWindows.Count > 0 && await Electron.WindowManager.BrowserWindows.First().IsVisibleAsync())
+            await InvokeAsync(StateHasChanged);
     }
 
     async void onedrive_onTransfer(object source, OneDriveEventArgs e)

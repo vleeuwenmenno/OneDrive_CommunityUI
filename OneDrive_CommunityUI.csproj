@@ -9,7 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="9.31.2" />
-    <PackageReference Include="Humanizer" Version="2.8.26" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneDrive_CSharp\library\OneDrive_CSharp.csproj" />
