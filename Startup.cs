@@ -58,14 +58,16 @@ namespace OneDrive_CommunityUI
                 endpoints.MapFallbackToPage("/_Host");
             });
 
+            Console.WriteLine(Environment.CurrentDirectory + "/wwwroot/img/onedrive.png");
+
             var opt = new BrowserWindowOptions
             {
-                Icon = "/opt/onedrive-community-ui/wwwroot/img/onedrive.png",
+                Icon = Environment.CurrentDirectory + "/wwwroot/img/onedrive.png",
                 Show = false,
                 AlwaysOnTop = true,
                 AutoHideMenuBar = true,
                 Frame = false,
-                Width = 440,
+                Width = 450,
                 Height = 650,
                 SkipTaskbar = true,
                 Fullscreenable = false
@@ -82,7 +84,7 @@ namespace OneDrive_CommunityUI
                 }
             };
             
-            Electron.Tray.Show("/opt/onedrive-community-ui/wwwroot/img/onedrive.png", items);
+            Electron.Tray.Show(Environment.CurrentDirectory + "/wwwroot/img/onedrive.png", items);
             Electron.Tray.SetToolTip("OneDrive Community UI");
 
             oneDrive = new OneDrive();
@@ -103,7 +105,7 @@ namespace OneDrive_CommunityUI
                 int h = all.Max(r => r.Size.Height);
                 int w = all.Sum(r => r.Size.Width);
 
-                int x = w - 440;
+                int x = w - 450;
                 int y = h - 650;
 
                 Electron.WindowManager.BrowserWindows.First().SetPosition(x, y);
