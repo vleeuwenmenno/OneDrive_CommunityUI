@@ -70,7 +70,13 @@ Contributions are what make the open source community such an amazing place to b
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+
+I'm not responsible for banned accounts, missing files, thermonuclear war, 
+or you getting fired because important business documents are missing.
+YOU are choosing to use this software and pointing fingers at me or any
+contributers of this project will bring you nowhere.
+
+Distributed under the MIT License. Please see `LICENSE.md` for more information.
 
 
 
