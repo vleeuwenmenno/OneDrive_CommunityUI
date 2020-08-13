@@ -46,7 +46,7 @@
 
 I recently made the switch to 2 major things in my IT works. I swithced from ONLYOFFICE to using Office 365 for the 1TB storage which I had a server for with Nextcloud and from Windows 10 to Ubuntu 20.04.I noticed there's a solid onedrive command but there is no easy UI for it. So because I had nothing better to do I created one.
 
-It uses the linux `onedrive` command line interface and `kdocker` to make this happen fluently.
+It relies on the linux `onedrive` command line interface to function though.
 
 ### Built With
 This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
