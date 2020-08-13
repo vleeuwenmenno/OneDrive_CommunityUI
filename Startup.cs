@@ -58,16 +58,16 @@ namespace OneDrive_CommunityUI
                 endpoints.MapFallbackToPage("/_Host");
             });
 
-            Console.WriteLine(Environment.CurrentDirectory + "/wwwroot/img/onedrive.png");
+            Console.WriteLine(Environment.CurrentDirectory + "/wwwroot/img/light/cloud.png");
 
             var opt = new BrowserWindowOptions
             {
-                Icon = Environment.CurrentDirectory + "/wwwroot/img/onedrive.png",
+                Icon = Environment.CurrentDirectory + "/wwwroot/img/light/cloud.png",
                 Show = false,
                 AlwaysOnTop = true,
                 AutoHideMenuBar = true,
                 Frame = false,
-                Width = 450,
+                Width = 460,
                 Height = 650,
                 SkipTaskbar = true,
                 Fullscreenable = false
@@ -84,16 +84,19 @@ namespace OneDrive_CommunityUI
                 }
             };
             
-            Electron.Tray.Show(Environment.CurrentDirectory + "/wwwroot/img/onedrive.png", items);
+            Electron.Tray.Show(Environment.CurrentDirectory + "/wwwroot/img/cloud-syncing.png", items);
             Electron.Tray.SetToolTip("OneDrive Community UI");
 
-            oneDrive = new OneDrive();
+            oneDrive = new OneDrive(true);
 
-            oneDrive.authenticate ();
-            oneDrive.startMonitorThread ();
+            oneDrive.Authenticate ();
+            oneDrive.StartAsync ();
+
+            Console.WriteLine("Icons in UI are from https://icons8.com");
             Console.WriteLine($"Started monitoring thread. [Authenticated: {oneDrive.hasAuthenticated}]");
-            OneDrive_CSharp.Misc.unix_simple("notify-send", "\"OneDrive is hidden to tray\" \"It will continue to sync in the background.\" --icon=\""+Environment.CurrentDirectory + "/wwwroot/img/onedrive.png\"");
+            OneDrive_CSharp.Misc.unix_simple("notify-send", "\"OneDrive is hidden to tray\" \"It will continue to sync in the background.\" --icon=\""+Environment.CurrentDirectory + "/wwwroot/img/dark/cloud.png\"");
         }
+
 
         private async void toggleWindow()
         {
@@ -106,7 +109,7 @@ namespace OneDrive_CommunityUI
                 int h = all.Max(r => r.Size.Height);
                 int w = all.Sum(r => r.Size.Width);
 
-                int x = w - 450;
+                int x = w - 460;
                 int y = h - 650;
 
                 Electron.WindowManager.BrowserWindows.First().SetPosition(x, y);

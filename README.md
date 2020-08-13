@@ -21,7 +21,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/vleeuwenmenno/OneDrive_CommunityUI">
-    <img src="wwwroot/img/onedrive.png" alt="Logo" width="80" height="80">
+    <img src="wwwroot/img/light/cloud.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">OneDrive Community UI</h3>
@@ -53,6 +53,7 @@ This section should list any major frameworks that you built your project using.
 * [Electron.NET](https://github.com/ElectronNET/Electron.NET)
 * [FontAwesome](https://fontawesome.com/)
 * [onedrive](https://github.com/skilion/onedrive)
+* [icon8](https://icons8.com)
 
 
 <!-- CONTRIBUTING -->
@@ -72,7 +73,7 @@ Contributions are what make the open source community such an amazing place to b
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-
+We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with Microsoft, OneDrive, or any of its subsidiaries or its affiliates.<br /><br />The names Microsoft and OneDrive as well as related names, marks, emblems and images are registered trademarks of their respective owners.
 
 <!-- CONTACT -->
 ## Contact

@@ -11,7 +11,7 @@
     "appId": "com.github.vleeuwenmenno.onedriveclui.app",
     "productName": "OneDrive (Community Linux UI)",
     "copyright": "Copyright © 2020",
-    "buildVersion": "0.2.3",
+    "buildVersion": "0.3.0",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"

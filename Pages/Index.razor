@@ -10,24 +10,66 @@
         }
     </div>
 </div>
-<header style="@(Startup.oneDrive.isActivelySyncing ? "display: none;" : "")">
+<header @onclick="(() => ShowDropDownMenu = false)" style="@(Startup.oneDrive.isActivelySyncing ? "display: none;" : "")">
     <i class="fas fa-cloud" style="color: white;"></i>&nbsp;OneDrive is up to date
 </header>
-
-<div class="fileList" style="@(Startup.oneDrive.isActivelySyncing ? "top: 120px !important;" : "")">
+<header @onclick="(() => ShowDropDownMenu = false)" style="@(!Startup.oneDrive.isPaused ? "display: none;" : "background-color: rgb(36, 36, 36);")">
+    <i class="fas fa-cloud" style="color: white;"></i>&nbsp;OneDrive is paused
+</header>
+<div class="subHeaderPaused fileEntry" @onclick="resume_Click" style="@(!Startup.oneDrive.isPaused ? "display: none;" : "background-color: rgb(254, 243, 208);")">
+    <div class="fileIcon clickable"><img src="img/dark/cloud-paused.png")" width="32" /></div>
+    <div class="contents">
+        <h4>Syncing is paused</h4>
+        Click here to resume syncing and keep your files up to date.
+    </div>
+</div>
+<div @onclick="(() => ShowDropDownMenu = false)" class="fileList" style="@(Startup.oneDrive.isActivelySyncing ? "top: 120px !important;" : "")">
     @foreach (KeyValuePair<string, OneDrive_CSharp.File> file in files) {
         <div class="fileEntry">
             <div class="fileIcon clickable" @onclick="@(e => OpenFile(file.Value.path))"><i class="fas fa-@(ExtensionToFontAwesome(file.Value.path)) fa-3x" style="color: @(ExtensionToFontAwesome(file.Value.path, true));"></i></div>
             <div class="contents">
                 <span class="header clickable ellipsize-right" @onclick="@(e => OpenFile(file.Value.path))">@(Path.GetFileName(file.Value.path))</span>
-                <span class="subText ">@(jobDone(file.Value))<a href="#" class="ellipsize-left" @onclick="@(e => OpenFile(Path.GetDirectoryName(file.Value.path)))">@(Path.GetDirectoryName(file.Value.path))</a></span>
+                <span class="subText ">@(jobDone(file.Value))&nbsp;<a href="#" class="ellipsize-left" @onclick="@(e => OpenFile(Path.GetDirectoryName(file.Value.path)))">@(Path.GetDirectoryName(file.Value.path))</a></span>
                 <span class="time">@(file.Value.timeAgo)</span>
             </div>
         </div>
     }
 </div>
+<footer class="footer">
+    <div class="row footerContent">
+        <div @onclick="openFolderBtn_Click" class="column">
+            <i class="fas fa-folder-open fa-2x"></i>
+            <p>Open folder</p>
+        </div>
+        <div @onclick="viewOnlineBtn_Click" class="column">                    
+            <i class="fas fa-globe-europe fa-2x"></i>
+            <p>View online</p>
+        </div>
+        <div class="dropdown-menu">
+            <div @onclick="settingsBtn_Click" class="column">         
+                <i class="fas fa-ellipsis-h"></i>
+                <p>More</p>
+            </div>
+            <div class="menu-content" style="@(ShowDropDownMenu ? "" : "display: none;")">
+                <a class="links" href="#" @onclick="openFolderBtn_Click" >Open folder</a>
+                <a class="links" href="#" @onclick="viewOnlineBtn_Click">Open online</a>
+                <a class="links" href="#" style="@(Startup.oneDrive.isPaused ? "display: none;" : "")" @onclick="(() => ShowPauseMenu = !ShowPauseMenu)">Pause</a>
+                <a class="links" href="#" @onclick="(() => PauseSyncing(1))" style="@(ShowPauseMenu ? "" : "display: none;")">&emsp;Pause for 1 minute</a>
+                <a class="links" href="#" @onclick="(() => PauseSyncing(30))" style="@(ShowPauseMenu ? "" : "display: none;")">&emsp;Pause for 30 minutes</a>
+                <a class="links" href="#" @onclick="(() => PauseSyncing(60))" style="@(ShowPauseMenu ? "" : "display: none;")">&emsp;Pause for 1 hour</a>
+                <a class="links" href="#" @onclick="(() => PauseSyncing(60*2))" style="@(ShowPauseMenu ? "" : "display: none;")">&emsp;Pause for 2 hours</a>
+                <a class="links" href="#" @onclick="(() => PauseSyncing(60*4))" style="@(ShowPauseMenu ? "" : "display: none;")">&emsp;Pause for 4 hours</a>
+                <a class="links" href="#" @onclick="about_Click">About</a>
+                <a class="links" href="#" @onclick="quit_Click">Quit</a>
+            </div>
+        </div>
+    </div>
+</footer>
 
 @code {
+    bool ShowPauseMenu = false;
+    bool ShowDropDownMenu = false;
+
     Dictionary<string, OneDrive_CSharp.File> files;
 
     string jobDone(OneDrive_CSharp.File file)
@@ -35,11 +77,11 @@
         if (file.done)
         {
             if (file.job == JobType.Deleting)
-                return "Deleted ";
+                return "Removed";
             else if (file.job == JobType.Downloading)
-                return "Downloaded ";
+                return "Downloaded";
             else
-                return "Uploaded ";
+                return "Uploaded";
         }
         else
             return file.job.ToString();
@@ -51,7 +93,42 @@
 
         Startup.oneDrive.OnTransfer += onedrive_onTransfer;
         Startup.oneDrive.OnSyncStatusChanged += onedrive_OnSyncStatusChanged;
-        Startup.oneDrive.OnHeartBeat += onedrive_OnHeartBeat;
+        Startup.oneDrive.OnHeartBeat += onedrive_OnHeartBeat;            
+        Startup.oneDrive.OnOnlineAccessChanged += onedrive_inetAccessChanged;
+        Startup.oneDrive.OnResume += onedrive_Resuming;
+        
+        Electron.WindowManager.BrowserWindows.First().OnBlur += onBrowser_focusLost;
+    }
+    
+    private void onBrowser_focusLost()
+    {
+        ShowDropDownMenu = false;
+        ShowPauseMenu = false;
+        Electron.WindowManager.BrowserWindows.First().Hide();
+    }
+
+    async void onedrive_Resuming(object source, OneDriveEventArgs e)
+    {
+        Electron.Tray.SetImage(Environment.CurrentDirectory + "/wwwroot/img/light/cloud-checked.png");
+        OneDrive_CSharp.Misc.unix_simple("notify-send", "\"OneDrive is resuming\" \"Pause time has ended, OneDrive will resume syncing your files now.\" --icon=\""+Environment.CurrentDirectory + "/wwwroot/img/dark/cloud-syncing.png\"");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    void onedrive_inetAccessChanged(object source, OneDriveEventArgs e)
+    {
+        if (Startup.oneDrive.isPaused)
+        {
+            Electron.Tray.SetImage(Environment.CurrentDirectory + "/wwwroot/img/light/cloud-paused.png");
+            return;
+        }
+        
+        if (!e.GetHasInternet())
+        {
+            Electron.Tray.SetImage(Environment.CurrentDirectory + "/wwwroot/img/light/cloud-nointernet.png");
+            OneDrive_CSharp.Misc.unix_simple("notify-send", "\"No internet connection!\" \"OneDrive syncing is paused until a internet connection is established.\" --icon=\""+Environment.CurrentDirectory + "/wwwroot/img/dark/cloud-nointernet.png\"");
+        }
+        else
+            Electron.Tray.SetImage(Environment.CurrentDirectory + "/wwwroot/img/light/cloud-checked.png");
     }
 
     async void onedrive_OnHeartBeat(object source, OneDriveEventArgs e)
@@ -63,6 +140,16 @@
 
     async void onedrive_OnSyncStatusChanged(object source, OneDriveEventArgs e)
     {
+        if (Startup.oneDrive.isActivelySyncing)
+        {
+            Electron.Tray.SetImage(Environment.CurrentDirectory + "/wwwroot/img/light/cloud-syncing.png");
+        }
+        else
+        {
+            Electron.Tray.SetImage(Environment.CurrentDirectory + "/wwwroot/img/light/cloud-checked.png");
+        }
+            
+
         // Only update state if the UI is visible
         if (Electron.WindowManager.BrowserWindows.Count > 0 && await Electron.WindowManager.BrowserWindows.First().IsVisibleAsync())
             await InvokeAsync(StateHasChanged);
@@ -79,35 +166,90 @@
 
     void OpenFile(string s)
     {
+        ShowDropDownMenu = false;
         Process.Start("/bin/bash", "-c \"/usr/bin/xdg-open \\\"/home/$USER/OneDrive/" + (s.StartsWith(",/") ? s.Replace("./", ""): s) + "\\\"\"");
     }
 
     string ExtensionToFontAwesome (string filePath, bool getColor = false) {
         string ext = Path.GetExtension (filePath).Replace (".", "");
 
-            if (ext == "pdf")
-                return getColor ? "rgb(231, 78, 63)" : "file-pdf";
-            else if (ext == "docx" || ext == "dotx" || ext == "dotm" || ext == "docb")
-                return getColor ? "rgb(42, 86, 150)" : "file-word";
-            else if (ext == "xlsx" || ext == "xlsm" || ext == "xltx" || ext == "xltm")
-                return getColor ? "rgb(2, 110, 57)" : "file-excel";
-            else if (ext == "pptx" || ext == "ppt" || ext == "pps" || ext == "pptm" || ext == "pot")
-                return getColor ? "rgb(207, 72, 40)" : "file-powerpoint";
-            else if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" || ext == "webp" || ext == "tiff" || ext == "fit" || ext == "fits" || ext == "psd" || ext == "raw" || ext == "cr2" || ext == "heif" || ext == "svg" || ext == "bmp")
-                return getColor ? "rgb(84, 80, 79)" : "file-image";
-            else if (ext == "zip" || ext == "rar" || ext == "7z" || ext == "tar" || ext == "bz2" || ext == "gz" || ext == "cab")
-                return getColor ? "rgb(254, 228, 143)" : "file-archive";
-            else if (ext == "mp3" || ext == "wav" || ext == "flac" || ext == "ogg" || ext == "3gp" || ext == "alac" || ext == "aiff" || ext == "m4a" || ext == "opus" || ext == "wma" || ext == "webm")
-                return getColor ? "rgb(0, 116, 205)" : "file-audio";
-            else if (ext == "cs" || ext == "d" || ext == "cpp" || ext == "h" || ext == "py" || ext == "bash" || ext == "sh" || ext == "sln" || ext == "csproj" || ext == "js" || ext == "java" || ext == "fs" || ext == "php" || ext == "css" || ext == "razor" || ext == "html" || ext == "scss" || ext == "sass" || ext == "asp" || ext == "swf" || ext == "xhtml" || ext == "jsp" || ext == "rb" || ext == "xml" || ext == "asx")
-                return getColor ? "rgb(100, 32, 117)" : "file-code";
-            else if (ext == "csv")
-                return getColor ? "rgb(2, 110, 57)" : "file-csv";
-            else if (ext == "gpg" || ext == "pub")
-                return getColor ? "gold" : "key";
-            else if (ext == "mp4" || ext == "mkv" || ext == "avi" || ext == "vob" || ext == "wmv" || ext == "flv" || ext == "m4v" || ext == "mpg" || ext == "m4p" || ext == "mov")
-                return getColor ? "rgb(247, 147, 0)" : "file-video";
-            else
-                return getColor ? "rgb(0, 116, 208)" : "file";
-        }
+        if (ext == "pdf")
+            return getColor ? "rgb(231, 78, 63)" : "file-pdf";
+        else if (ext == "docx" || ext == "dotx" || ext == "dotm" || ext == "docb")
+            return getColor ? "rgb(42, 86, 150)" : "file-word";
+        else if (ext == "xlsx" || ext == "xlsm" || ext == "xltx" || ext == "xltm")
+            return getColor ? "rgb(2, 110, 57)" : "file-excel";
+        else if (ext == "pptx" || ext == "ppt" || ext == "pps" || ext == "pptm" || ext == "pot")
+            return getColor ? "rgb(207, 72, 40)" : "file-powerpoint";
+        else if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" || ext == "webp" || ext == "tiff" || ext == "fit" || ext == "fits" || ext == "psd" || ext == "raw" || ext == "cr2" || ext == "heif" || ext == "svg" || ext == "bmp")
+            return getColor ? "rgb(84, 80, 79)" : "file-image";
+        else if (ext == "zip" || ext == "rar" || ext == "7z" || ext == "tar" || ext == "bz2" || ext == "gz" || ext == "cab")
+            return getColor ? "rgb(254, 228, 143)" : "file-archive";
+        else if (ext == "mp3" || ext == "wav" || ext == "flac" || ext == "ogg" || ext == "3gp" || ext == "alac" || ext == "aiff" || ext == "m4a" || ext == "opus" || ext == "wma" || ext == "webm")
+            return getColor ? "rgb(0, 116, 205)" : "file-audio";
+        else if (ext == "cs" || ext == "d" || ext == "cpp" || ext == "h" || ext == "py" || ext == "bash" || ext == "sh" || ext == "sln" || ext == "csproj" || ext == "js" || ext == "java" || ext == "fs" || ext == "php" || ext == "css" || ext == "razor" || ext == "html" || ext == "scss" || ext == "sass" || ext == "asp" || ext == "swf" || ext == "xhtml" || ext == "jsp" || ext == "rb" || ext == "xml" || ext == "asx")
+            return getColor ? "rgb(100, 32, 117)" : "file-code";
+        else if (ext == "csv")
+            return getColor ? "rgb(2, 110, 57)" : "file-csv";
+        else if (ext == "gpg" || ext == "pub")
+            return getColor ? "gold" : "key";
+        else if (ext == "mp4" || ext == "mkv" || ext == "avi" || ext == "vob" || ext == "wmv" || ext == "flv" || ext == "m4v" || ext == "mpg" || ext == "m4p" || ext == "mov")
+            return getColor ? "rgb(247, 147, 0)" : "file-video";
+        else
+            return getColor ? "rgb(0, 116, 208)" : "file";
+    }
+    
+    void openFolderBtn_Click()
+    {
+        Process.Start("/bin/bash", "-c \"/usr/bin/xdg-open /home/$USER/OneDrive\"");
+        ShowDropDownMenu = false;
+    }
+
+    void viewOnlineBtn_Click()
+    {
+        Process.Start("/usr/bin/xdg-open", "https://onedrive.live.com/");
+        ShowDropDownMenu = false;
+    }
+
+    void settingsBtn_Click()
+    {
+        ShowDropDownMenu = !ShowDropDownMenu;
+
+        if (!ShowDropDownMenu)
+            ShowPauseMenu = false;
+    }
+
+    void quit_Click()
+    {
+        Startup.oneDrive.Stop();
+        Electron.App.Quit();
+        Environment.Exit(0);
+    }
+
+    async void about_Click()
+    {
+        ShowDropDownMenu = false;
+        string msg = "OneDrive (Community Linux UI)\n\nMade using .NET Core & ElectronNET\nThanks to icon8 (https://icons8.com/) for supplying the app with free icons.\n\n\nWe are not affiliated, associated, authorized, endorsed by, or in any way officially connected with Microsoft, OneDrive, or any of its subsidiaries or its affiliates.\n\nThe names Microsoft and OneDrive as well as related names, marks, emblems and images are registered trademarks of their respective owners.\n\nFor more details please head over to the GitHub page: \ngithub.com/vleeuwenmenno/OneDrive_CommunityUI";
+        MessageBoxResult res = await Electron.Dialog.ShowMessageBoxAsync(new MessageBoxOptions(msg) { Buttons = new string[] { "icons8", "GitHub", "Dismiss" }, Icon = Environment.CurrentDirectory + "/wwwroot/img/cloud.png" });
+        
+        if (res.Response == 0)
+            Process.Start("/usr/bin/xdg-open", "https://icons8.com/");
+        else if (res.Response == 1)
+            Process.Start("/usr/bin/xdg-open", "https://github.com/vleeuwenmenno/OneDrive_CommunityUI");
+    }
+
+    void PauseSyncing(int mins)
+    {
+        Startup.oneDrive.PauseAsync(mins);
+
+        ShowDropDownMenu = false;
+        ShowPauseMenu = false;
+        Electron.Tray.SetImage(Environment.CurrentDirectory + "/wwwroot/img/light/cloud-paused.png");
+        OneDrive_CSharp.Misc.unix_simple("notify-send", "\"OneDrive syncing paused\" \"OneDrive syncing has been paused for " + mins + " minutes.\" --icon=\""+Environment.CurrentDirectory + "/wwwroot/img/dark/cloud-paused.png\"");
+    }
+
+    async void resume_Click()
+    {
+        Startup.oneDrive.CancelPause();
+    }
 }

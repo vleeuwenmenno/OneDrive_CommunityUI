@@ -11,6 +11,6 @@
     <PackageReference Include="ElectronNET.API" Version="9.31.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OneDrive_CSharp\library\OneDrive_CSharp.csproj" />
+    <ProjectReference Include="\home\menno\OneDrive\Documents\Repos\OneDrive_CSharp\library\OneDrive_CSharp.csproj" />
   </ItemGroup>
 </Project>
