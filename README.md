@@ -48,13 +48,22 @@ I recently made the switch to 2 major things in my IT works. I swithced from ONL
 
 It relies on the linux `onedrive` command line interface to function though.
 
-### Built With
-This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-* [Electron.NET](https://github.com/ElectronNET/Electron.NET)
-* [FontAwesome](https://fontawesome.com/)
-* [onedrive](https://github.com/skilion/onedrive)
-* [icon8](https://icons8.com)
+### Libraries & resources used
 
+* [Electron.NET](https://github.com/ElectronNET/Electron.NET)
+Used as UI framework for Linux, this is an important part of this application.
+
+* [FontAwesome](https://fontawesome.com/)
+For all the file icons and some animated icons.
+
+* [OneDrive_CSharp](https://github.com/vleeuwenmenno/OneDrive_CSharp)
+A library made to interface with the onedrive command line tool.
+
+* [onedrive](https://github.com/skilion/onedrive)
+This is the core of this application, we use this inside the OneDrive_CSharp library mentioned above to interface with onedrive.
+
+* [icon8](https://icons8.com)
+The cloud icons we use in the tray and notifications come from icons8.
 
 <!-- CONTRIBUTING -->
 ## Contributing
